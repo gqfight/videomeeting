@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { globalRegister } from './global'
-
-import './service/axios_demo'
+import 'normalize.css'
+import './assets/css/index.less'
 
 import App from './App.vue'
 
@@ -16,7 +16,3 @@ app.use(router)
 app.use(store)
 
 app.mount('#app')
-
-// console.log(VUE_APP_BASE_URL)
-console.log(process.env.VUE_APP_BASE_URL)
-console.log(process.env.VUE_APP_BASE_NAME)
