@@ -1,3 +1,3 @@
 export interface IRootState {
-  username: string
+  info: any
 }

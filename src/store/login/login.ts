@@ -7,14 +7,22 @@ const loginModule: Module<ILoginState, IRootState> = {
   namespaced: true,
   state() {
     return {
-      token: '',
       userinfo: {}
     }
   },
-  getters: {},
-  mutations: {},
+  getters: {
+    getuserName(state) {
+      return state.userinfo.username
+    }
+  },
+  mutations: {
+    cuserinfo(state, payload) {
+      state.userinfo = payload
+    }
+  },
   actions: {
     async accountLoginAction({ commit }, payload: any) {
+      //进行用户的登录验证
       const res = await axios({
         method: 'POST',
         url: 'http://127.0.0.1:3007/api/login',

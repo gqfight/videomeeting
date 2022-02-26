@@ -69,7 +69,7 @@ export default {
           })
           // router.replace('/main')
           if (data.status === 0) {
-            store.commit('cUserName', { ...account })
+            store.commit('login/cuserinfo', account)
             setTimeout(() => {
               router.push('/main')
             }, 1200)

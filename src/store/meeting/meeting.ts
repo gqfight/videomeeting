@@ -3,7 +3,6 @@ import { IMeetingState } from './types'
 import { IRootState } from '../types'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-
 const meetingModule: Module<IMeetingState, IRootState> = {
   namespaced: true,
   state() {
@@ -21,17 +20,18 @@ const meetingModule: Module<IMeetingState, IRootState> = {
     }
   },
   actions: {
-    async meetingCreaAction({ commit, state }, payload: any) {
-      const res = await await axios({
+    async meetingCreaAction({ commit, state, rootGetters }, payload: any) {
+      const res = await axios({
         method: 'POST',
         url: 'http://127.0.0.1:3007/api/creatoken',
         params: {
-          username: this.state.username,
+          username: rootGetters['login/getuserName'],
           channelName: payload.channelName
         }
       })
       const data = res.data
       if (data.status === 0) {
+        console.log(data)
         commit('wmtoken', data.mtoken)
         commit('wchannelName', payload.channelName)
         ElMessage({

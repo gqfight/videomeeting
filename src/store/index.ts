@@ -7,15 +7,10 @@ import meeting from './meeting/meeting'
 const store = createStore<IRootState>({
   state: () => {
     return {
-      username: 'coderwhy'
+      info: {}
     }
   },
-  mutations: {
-    cUserName(state, payload) {
-      state.username = payload.username
-      console.log(state.username)
-    }
-  },
+  mutations: {},
   getters: {},
   actions: {},
   modules: {
