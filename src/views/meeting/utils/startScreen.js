@@ -2,7 +2,8 @@ import axios from 'axios'
 import AgoraRTC from 'agora-rtc-sdk-ng'
 let rtc = {
   localAudioTrack: null,
-  locaVdeioTrack: null,
+  localScreenVideoTrack: null,
+  localScreenAudioTrack: null,
   client: null
 }
 let options = {
@@ -39,9 +40,35 @@ async function join() {
     options.token,
     options.uid
   )
+  let screenTrack
   rtc.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack()
-  rtc.localVideoTrack = await AgoraRTC.createCameraVideoTrack()
-  await rtc.client.publish([rtc.localAudioTrack, rtc.localVideoTrack])
+  screenTrack = await AgoraRTC.createScreenVideoTrack(
+    {
+      encoderConfig: {
+        frameRate: 15,
+        height: 720,
+        width: 1280
+      }
+    },
+    'auto'
+  )
+  if (screenTrack instanceof Array) {
+    rtc.localScreenVideoTrack = screenTrack[0]
+    rtc.localScreenAudioTrack = screenTrack[1]
+  } else {
+    rtc.localScreenVideoTrack = screenTrack
+  }
+
+  //publish
+  if (rtc.localAudioTrack == null) {
+    await rtc.client.publish([rtc.localScreenVideoTrack, rtc.localAudioTrack])
+  } else {
+    await rtc.client.publish([
+      rtc.localScreenVideoTrack,
+      rtc.localAudioTrack,
+      rtc.localScreenAudioTrack
+    ])
+  }
   const localPlayerContainer = document.createElement('div')
   localPlayerContainer.id = options.uid
   localPlayerContainer.textContent = 'Local user ' + options.uid
@@ -49,12 +76,25 @@ async function join() {
   localPlayerContainer.style.height = '480px'
   localPlayerContainer.style.marginBottom = '20px'
   container.append(localPlayerContainer)
-  rtc.localVideoTrack.play(localPlayerContainer)
+  rtc.localScreenVideoTrack.play(localPlayerContainer)
+
+  //视频共享结束事件
+  rtc.localScreenAudioTrack.on('track-ended', () => {
+    rtc.localScreenVideoTrack && rtc.localScreenVideoTrack.close()
+  })
   console.log('publish success!')
 }
 async function leave() {
-  rtc.localAudioTrack.close()
-  rtc.localVideoTrack.close()
+  for (let trackName in rtc) {
+    if (trackName !== 'client') {
+      let track = rtc[trackName]
+      if (track) {
+        track.stop()
+        track.close()
+        rtc[trackName] = undefined
+      }
+    }
+  }
   rtc.client.remoteUsers.forEach((user) => {
     const playerContainer = document.getElementById(user.uid)
     playerContainer && playerContainer.remove()
